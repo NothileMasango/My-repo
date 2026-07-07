@@ -51,7 +51,7 @@ const schema = a.schema({
     .model({
       customerId: a.string().required(),
       policyNumber: a.string().required(),
-      policyType: a.enum(["LIFE", "FUNERAL", "SAVINGS", "RETIREMENT", "DISABILITY"]),
+      policyType: a.enum(["EASIPLUS_FUNERAL", "STANDARD_FUNERAL"]),
       monthlyPremium: a.float().required(),
       premiumDueDate: a.integer().required(),
       status: a.enum(["ACTIVE", "LAPSED", "PAID_UP", "CANCELLED"]),

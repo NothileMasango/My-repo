@@ -13,10 +13,8 @@ const SEED_WALLET = {
 };
 
 const SEED_POLICIES = [
-  { policyNumber: "OM-LIFE-2024-5678", policyType: "LIFE" as const, monthlyPremium: 450.0, premiumDueDate: 25, status: "ACTIVE" as const, nextDueDate: "2026-07-25", coverAmount: 500000.0, riskScore: 0.23 },
-  { policyNumber: "OM-FUN-2024-9012", policyType: "FUNERAL" as const, monthlyPremium: 125.0, premiumDueDate: 28, status: "ACTIVE" as const, nextDueDate: "2026-07-28", coverAmount: 50000.0, riskScore: 0.12 },
-  { policyNumber: "OM-SAV-2024-3456", policyType: "SAVINGS" as const, monthlyPremium: 300.0, premiumDueDate: 1, status: "ACTIVE" as const, nextDueDate: "2026-08-01", coverAmount: 150000.0, riskScore: 0.05 },
-  { policyNumber: "OM-DIS-2024-7890", policyType: "DISABILITY" as const, monthlyPremium: 200.0, premiumDueDate: 15, status: "ACTIVE" as const, nextDueDate: "2026-08-15", coverAmount: 250000.0, riskScore: 0.18 },
+  { policyNumber: "OM-EASI-2024-5678", policyType: "EASIPLUS_FUNERAL" as const, monthlyPremium: 39.0, premiumDueDate: 25, status: "ACTIVE" as const, nextDueDate: "2026-07-10", coverAmount: 30000.0, riskScore: 0.15 },
+  { policyNumber: "OM-STD-2024-9012", policyType: "STANDARD_FUNERAL" as const, monthlyPremium: 89.0, premiumDueDate: 28, status: "ACTIVE" as const, nextDueDate: "2026-07-12", coverAmount: 70000.0, riskScore: 0.10 },
 ];
 
 const SEED_TRANSACTIONS = [
