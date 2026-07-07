@@ -1,12 +1,6 @@
 version: 1
 applications:
   - appRoot: Smart-cover-wallet
-    backend:
-      phases:
-        build:
-          commands:
-            - npm ci
-            - npx ampx pipeline-deploy --branch $AWS_BRANCH
     frontend:
       phases:
         preBuild:
@@ -16,10 +10,9 @@ applications:
           commands:
             - npm run build
       artifacts:
-        baseDirectory: .next
+        baseDirectory: out
         files:
           - '**/*'
       cache:
         paths:
-          - .next/cache/**/*
           - node_modules/**/*
