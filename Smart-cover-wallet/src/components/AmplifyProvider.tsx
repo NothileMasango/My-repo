@@ -4,9 +4,9 @@ import { Amplify } from "aws-amplify";
 import { useEffect, useState } from "react";
 
 /**
- * Configures Amplify with the generated outputs.
- * After `npx ampx sandbox` or Amplify deployment, the amplify_outputs.json
- * is auto-generated and contains all the resource endpoints.
+ * Configures Amplify at runtime (not build time).
+ * The amplify_outputs.json is loaded dynamically to avoid build errors
+ * when the file doesn't exist yet.
  */
 export function AmplifyProvider({ children }: { children: React.ReactNode }) {
   const [configured, setConfigured] = useState(false);
@@ -14,12 +14,15 @@ export function AmplifyProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     async function configure() {
       try {
-        // amplify_outputs.json is generated at build time by Amplify
-        const outputs = await import("../../amplify_outputs.json");
-        Amplify.configure(outputs.default || outputs);
+        const response = await fetch("/amplify_outputs.json");
+        if (response.ok) {
+          const outputs = await response.json();
+          Amplify.configure(outputs);
+        } else {
+          console.warn("amplify_outputs.json not found. Run `npx ampx sandbox` to generate.");
+        }
       } catch (e) {
-        // If no outputs yet (first time, dev without sandbox), use defaults
-        console.warn("No amplify_outputs.json found. Run `npx ampx sandbox` to generate.");
+        console.warn("Could not load Amplify config:", e);
       }
       setConfigured(true);
     }
@@ -30,7 +33,7 @@ export function AmplifyProvider({ children }: { children: React.ReactNode }) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
-          <div className="w-12 h-12 rounded-xl gradient-green flex items-center justify-center mx-auto mb-3">
+          <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-green-600 to-green-700 flex items-center justify-center mx-auto mb-3">
             <span className="text-white font-bold text-lg">SC</span>
           </div>
           <p className="text-gray-500 text-sm">Loading...</p>

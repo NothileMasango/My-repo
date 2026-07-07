@@ -1,19 +1,26 @@
 version: 1
 applications:
   - appRoot: Smart-cover-wallet
+    backend:
+      phases:
+        build:
+          commands:
+            - npm install
+            - npx ampx pipeline-deploy --branch $AWS_BRANCH
     frontend:
       phases:
         preBuild:
           commands:
             - npm install
+            - cp amplify_outputs.json public/amplify_outputs.json 2>/dev/null || echo "No outputs yet"
         build:
           commands:
-            - npx next build
+            - npm run build
       artifacts:
-        baseDirectory: out
+        baseDirectory: .next
         files:
           - '**/*'
       cache:
         paths:
-          - node_modules/**/*
           - .next/cache/**/*
+          - node_modules/**/*
