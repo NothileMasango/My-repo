@@ -8,8 +8,6 @@
     "forceConsistentCasingInFileNames": true,
     "strict": true,
     "skipLibCheck": true,
-    "paths": {
-      "$amplify/*": ["../.amplify/generated/*"]
-    }
+    "paths": { "$amplify/*": ["../.amplify/generated/*"] }
   }
 }

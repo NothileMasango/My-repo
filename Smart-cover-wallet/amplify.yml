@@ -1,4 +1,10 @@
 version: 1
+backend:
+  phases:
+    build:
+      commands:
+        - npm install
+        - npx ampx pipeline-deploy --branch $AWS_BRANCH
 frontend:
   phases:
     preBuild:
@@ -6,12 +12,12 @@ frontend:
         - npm install
     build:
       commands:
-        - npx next build
+        - npm run build
   artifacts:
-    baseDirectory: out
+    baseDirectory: .next
     files:
       - '**/*'
   cache:
     paths:
-      - node_modules/**/*
       - .next/cache/**/*
+      - node_modules/**/*

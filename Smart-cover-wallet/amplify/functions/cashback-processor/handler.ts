@@ -1,119 +1,74 @@
 /**
  * Cashback Processor Lambda
- * 
- * Processes grocery transactions and calculates 1% cashback.
- * Rules:
- * - 1% cashback on grocery purchases at participating retailers
- * - Monthly cap of R20 per customer
- * - Automatically credits the Smart Cover Wallet
- * - Resets monthly cap on the 1st of each month
+ * Triggered when a new Transaction is created.
+ * Calculates 1% cashback, checks monthly R20 cap, and credits the wallet.
  */
 
-interface TransactionEvent {
+interface CashbackEvent {
+  transactionId: string;
   customerId: string;
   walletId: string;
-  transactionId: string;
   merchantName: string;
-  merchantCategory: string;
   amount: number;
-  transactionDate: string;
   isParticipatingRetailer: boolean;
+  currentMonthlyEarnings: number;
+  currentBalance: number;
 }
 
 interface CashbackResult {
   cashbackAmount: number;
   applied: boolean;
   reason: string;
-  newWalletBalance: number;
-  monthlyTotalAfter: number;
+  newBalance: number;
+  newMonthlyTotal: number;
   capReached: boolean;
 }
-
-// Participating retailers (would be from DynamoDB in production)
-const PARTICIPATING_RETAILERS = [
-  "Pick n Pay",
-  "Checkers",
-  "Shoprite",
-  "Woolworths Food",
-  "Spar",
-  "Food Lover's Market",
-  "Makro",
-  "Game",
-  "OK Foods",
-  "Boxer",
-];
 
 const MONTHLY_CAP = parseFloat(process.env.MONTHLY_CASHBACK_CAP || "20.00");
 const CASHBACK_RATE = parseFloat(process.env.CASHBACK_PERCENTAGE || "1.0") / 100;
 
-export const handler = async (event: TransactionEvent): Promise<CashbackResult> => {
-  console.log("Processing cashback for transaction:", JSON.stringify(event));
+export const handler = async (event: CashbackEvent): Promise<CashbackResult> => {
+  console.log("Processing cashback:", JSON.stringify(event));
 
-  const {
-    customerId,
-    walletId,
-    transactionId,
-    merchantName,
-    amount,
-    isParticipatingRetailer,
-  } = event;
-
-  // Validate participating retailer
-  if (!isParticipatingRetailer) {
+  if (!event.isParticipatingRetailer) {
     return {
       cashbackAmount: 0,
       applied: false,
-      reason: `${merchantName} is not a participating retailer`,
-      newWalletBalance: 0,
-      monthlyTotalAfter: 0,
+      reason: `${event.merchantName} is not a participating retailer`,
+      newBalance: event.currentBalance,
+      newMonthlyTotal: event.currentMonthlyEarnings,
       capReached: false,
     };
   }
 
-  // Calculate raw cashback (1% of transaction amount)
-  let cashbackAmount = amount * CASHBACK_RATE;
+  let cashbackAmount = event.amount * CASHBACK_RATE;
+  const remainingCap = MONTHLY_CAP - event.currentMonthlyEarnings;
 
-  // In production: Query DynamoDB for current monthly earnings
-  // For hackathon demo, we simulate this
-  const currentMonthlyEarnings = 0; // Would come from wallet record
-
-  // Check monthly cap
-  const remainingCap = MONTHLY_CAP - currentMonthlyEarnings;
-  
   if (remainingCap <= 0) {
     return {
       cashbackAmount: 0,
       applied: false,
       reason: "Monthly cashback cap of R20 reached",
-      newWalletBalance: 0,
-      monthlyTotalAfter: currentMonthlyEarnings,
+      newBalance: event.currentBalance,
+      newMonthlyTotal: event.currentMonthlyEarnings,
       capReached: true,
     };
   }
 
-  // Apply cap limit
   if (cashbackAmount > remainingCap) {
     cashbackAmount = remainingCap;
   }
 
-  // Round to 2 decimal places
   cashbackAmount = Math.round(cashbackAmount * 100) / 100;
-
-  const newMonthlyTotal = currentMonthlyEarnings + cashbackAmount;
-  const capReached = newMonthlyTotal >= MONTHLY_CAP;
-
-  console.log(`Cashback calculated: R${cashbackAmount} for R${amount} purchase at ${merchantName}`);
-  console.log(`Monthly total: R${newMonthlyTotal}/${MONTHLY_CAP} | Cap reached: ${capReached}`);
-
-  // In production: Update DynamoDB wallet balance and create WalletTransaction record
-  // For hackathon, return the calculated result
+  const newMonthlyTotal = event.currentMonthlyEarnings + cashbackAmount;
+  const newBalance = event.currentBalance + cashbackAmount;
 
   return {
     cashbackAmount,
     applied: true,
-    reason: `1% cashback on R${amount} grocery purchase at ${merchantName}`,
-    newWalletBalance: cashbackAmount, // Would add to existing balance
-    monthlyTotalAfter: newMonthlyTotal,
-    capReached,
+    reason: `1% cashback on R${event.amount} at ${event.merchantName}`,
+    newBalance,
+    newMonthlyTotal,
+    capReached: newMonthlyTotal >= MONTHLY_CAP,
   };
 };
