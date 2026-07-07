@@ -1,9 +1,16 @@
 version: 1
+backend:
+  phases:
+    build:
+      commands:
+        - npm install
+        - npx ampx pipeline-deploy --branch $AWS_BRANCH --app-id d398uyayqgjxue
 frontend:
   phases:
     preBuild:
       commands:
         - npm install
+        - cp amplify_outputs.json public/amplify_outputs.json 2>/dev/null || echo "No outputs yet"
     build:
       commands:
         - npm run build
