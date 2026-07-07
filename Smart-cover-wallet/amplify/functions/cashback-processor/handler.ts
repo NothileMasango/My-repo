@@ -1,7 +1,6 @@
 /**
  * Cashback Processor Lambda
- * Triggered when a new Transaction is created.
- * Calculates 1% cashback, checks monthly R20 cap, and credits the wallet.
+ * 10% cashback on grocery purchases, R150/month cap
  */
 
 interface CashbackEvent {
@@ -24,20 +23,17 @@ interface CashbackResult {
   capReached: boolean;
 }
 
-const MONTHLY_CAP = parseFloat(process.env.MONTHLY_CASHBACK_CAP || "20.00");
-const CASHBACK_RATE = parseFloat(process.env.CASHBACK_PERCENTAGE || "1.0") / 100;
+const MONTHLY_CAP = parseFloat(process.env.MONTHLY_CASHBACK_CAP || "150.00");
+const CASHBACK_RATE = parseFloat(process.env.CASHBACK_PERCENTAGE || "10.0") / 100;
 
 export const handler = async (event: CashbackEvent): Promise<CashbackResult> => {
   console.log("Processing cashback:", JSON.stringify(event));
 
   if (!event.isParticipatingRetailer) {
     return {
-      cashbackAmount: 0,
-      applied: false,
+      cashbackAmount: 0, applied: false,
       reason: `${event.merchantName} is not a participating retailer`,
-      newBalance: event.currentBalance,
-      newMonthlyTotal: event.currentMonthlyEarnings,
-      capReached: false,
+      newBalance: event.currentBalance, newMonthlyTotal: event.currentMonthlyEarnings, capReached: false,
     };
   }
 
@@ -46,29 +42,20 @@ export const handler = async (event: CashbackEvent): Promise<CashbackResult> => 
 
   if (remainingCap <= 0) {
     return {
-      cashbackAmount: 0,
-      applied: false,
-      reason: "Monthly cashback cap of R20 reached",
-      newBalance: event.currentBalance,
-      newMonthlyTotal: event.currentMonthlyEarnings,
-      capReached: true,
+      cashbackAmount: 0, applied: false,
+      reason: "Monthly cashback cap of R150 reached",
+      newBalance: event.currentBalance, newMonthlyTotal: event.currentMonthlyEarnings, capReached: true,
     };
   }
 
-  if (cashbackAmount > remainingCap) {
-    cashbackAmount = remainingCap;
-  }
-
+  if (cashbackAmount > remainingCap) cashbackAmount = remainingCap;
   cashbackAmount = Math.round(cashbackAmount * 100) / 100;
-  const newMonthlyTotal = event.currentMonthlyEarnings + cashbackAmount;
-  const newBalance = event.currentBalance + cashbackAmount;
 
   return {
-    cashbackAmount,
-    applied: true,
-    reason: `1% cashback on R${event.amount} at ${event.merchantName}`,
-    newBalance,
-    newMonthlyTotal,
-    capReached: newMonthlyTotal >= MONTHLY_CAP,
+    cashbackAmount, applied: true,
+    reason: `10% cashback on R${event.amount} at ${event.merchantName}`,
+    newBalance: event.currentBalance + cashbackAmount,
+    newMonthlyTotal: event.currentMonthlyEarnings + cashbackAmount,
+    capReached: (event.currentMonthlyEarnings + cashbackAmount) >= MONTHLY_CAP,
   };
 };

@@ -78,7 +78,7 @@ export default function AddTransaction({ onSubmit, customerId }: Props) {
             <option value="">Select a store...</option>
             {RETAILERS.map(r => (
               <option key={r.name} value={r.name}>
-                {r.name} {r.participating ? "(1% cashback)" : ""}
+                {r.name} {r.participating ? "(10% cashback)" : ""}
               </option>
             ))}
           </select>
@@ -103,7 +103,7 @@ export default function AddTransaction({ onSubmit, customerId }: Props) {
             retailer?.participating ? "bg-green-50 text-green-700" : "bg-gray-50 text-gray-600"
           }`}>
             {retailer?.participating ? (
-              <>Earn <strong>1% cashback</strong> (R{(parseFloat(amount || "0") * 0.01).toFixed(2)}) at {selectedRetailer}</>
+              <>Earn <strong>10% cashback</strong> (R{(parseFloat(amount || "0") * 0.10).toFixed(2)}) at {selectedRetailer} <span className="text-xs opacity-70">(up to R150/month)</span></>
             ) : (
               <>{selectedRetailer} is not a participating retailer - no cashback</>
             )}
@@ -120,7 +120,7 @@ export default function AddTransaction({ onSubmit, customerId }: Props) {
       </form>
 
       <div className="mt-6 pt-4 border-t border-gray-100">
-        <h4 className="text-sm font-semibold text-gray-600 mb-2">Participating Retailers (1% cashback)</h4>
+        <h4 className="text-sm font-semibold text-gray-600 mb-2">Participating Retailers (10% cashback, up to R150/month)</h4>
         <div className="flex flex-wrap gap-2">
           {RETAILERS.filter(r => r.participating).map(r => (
             <span key={r.name} className="text-xs bg-green-50 text-green-700 px-2 py-1 rounded-full">{r.name}</span>

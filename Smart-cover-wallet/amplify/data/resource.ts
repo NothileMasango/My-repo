@@ -19,7 +19,7 @@ const schema = a.schema({
       totalCashbackEarned: a.float().default(0),
       totalPremiumsCovered: a.float().default(0),
       monthlyEarnings: a.float().default(0),
-      monthlyCap: a.float().default(20),
+      monthlyCap: a.float().default(150),
       lastResetDate: a.string(),
     })
     .authorization((allow) => [allow.owner()]),
@@ -78,7 +78,7 @@ const schema = a.schema({
     .model({
       name: a.string().required(),
       code: a.string().required(),
-      cashbackPercentage: a.float().default(1.0),
+      cashbackPercentage: a.float().default(10.0),
       isActive: a.boolean().default(true),
       category: a.string(),
     })

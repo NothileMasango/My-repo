@@ -6,7 +6,7 @@ export const cashbackProcessor = defineFunction({
   timeoutSeconds: 30,
   memoryMB: 256,
   environment: {
-    MONTHLY_CASHBACK_CAP: "20.00",
-    CASHBACK_PERCENTAGE: "1.0",
+    MONTHLY_CASHBACK_CAP: "150.00",
+    CASHBACK_PERCENTAGE: "10.0",
   },
 });

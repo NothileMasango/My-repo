@@ -66,11 +66,14 @@ export default function DashboardPage() {
     // Create transaction
     const { data: newTxn } = await client.models.Transaction.create(txn);
 
-    // Calculate cashback if participating retailer
+    // Calculate cashback if participating retailer - 10% up to R150/month
+    const CASHBACK_RATE = 0.10; // 10%
+    const MONTHLY_CAP = 150; // R150
+
     if (txn.isParticipatingRetailer && wallet) {
       const cashbackAmount = Math.min(
-        txn.amount * 0.01,
-        Math.max(0, 20 - (wallet.monthlyEarnings || 0))
+        txn.amount * CASHBACK_RATE,
+        Math.max(0, MONTHLY_CAP - (wallet.monthlyEarnings || 0))
       );
 
       if (cashbackAmount > 0) {
@@ -92,7 +95,7 @@ export default function DashboardPage() {
           walletId: wallet.id,
           type: "CASHBACK_CREDIT",
           amount: roundedCashback,
-          description: `1% cashback - ${txn.merchantName}`,
+          description: `10% cashback - ${txn.merchantName}`,
           balanceAfter: newBalance,
         });
 
@@ -106,13 +109,13 @@ export default function DashboardPage() {
         }
 
         // Create insight if milestone
-        if (newTotal >= 100 && (wallet.totalCashbackEarned || 0) < 100) {
+        if (newTotal >= 500 && (wallet.totalCashbackEarned || 0) < 500) {
           await client.models.InsightAlert.create({
             customerId: txn.customerId,
             alertType: "CASHBACK_MILESTONE",
             severity: "LOW",
-            title: "R100 Cashback Milestone!",
-            message: `You've earned over R100 in cashback. Keep shopping to grow your safety net!`,
+            title: "R500 Cashback Milestone!",
+            message: `You've earned over R500 in cashback. Your safety net is growing strong!`,
             isRead: false,
             actionTaken: false,
           });
@@ -142,6 +145,7 @@ export default function DashboardPage() {
     { id: "add", label: "+ Transaction" },
     { id: "policies", label: "Policies" },
     { id: "insights", label: "Insights" },
+    { id: "ai-test", label: "🧠 AI Test" },
   ];
 
   return (
@@ -200,6 +204,23 @@ export default function DashboardPage() {
         )}
         {activeTab === "policies" && <PolicyList policies={policies} />}
         {activeTab === "insights" && <InsightList insights={insights} client={client} onRefresh={loadData} />}
+        {activeTab === "ai-test" && (
+          <div className="glass-card p-6 text-center">
+            <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-purple-500 to-blue-600 flex items-center justify-center mx-auto mb-4">
+              <span className="text-white text-2xl">🧠</span>
+            </div>
+            <h3 className="text-lg font-bold text-gray-800 mb-2">AI Insights Engine</h3>
+            <p className="text-sm text-gray-500 mb-4">
+              Run the AI engine to analyze your policies, calculate risk scores, and trigger auto-cover protection.
+            </p>
+            <a
+              href="/dashboard/insights-test"
+              className="inline-block px-6 py-3 rounded-xl bg-gradient-to-r from-purple-600 to-blue-600 text-white font-semibold shadow-lg hover:shadow-xl"
+            >
+              Open AI Test Console
+            </a>
+          </div>
+        )}
       </main>
     </div>
   );

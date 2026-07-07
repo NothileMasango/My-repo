@@ -8,21 +8,23 @@ import type { Schema } from "../../../../amplify/data/resource";
 const client = generateClient<Schema>();
 
 const SEED_WALLET = {
-  balance: 156.42, totalCashbackEarned: 412.87, totalPremiumsCovered: 256.45,
-  monthlyEarnings: 14.32, monthlyCap: 20, lastResetDate: "2026-07-01",
+  balance: 856.42, totalCashbackEarned: 2412.87, totalPremiumsCovered: 1256.45,
+  monthlyEarnings: 98.50, monthlyCap: 150, lastResetDate: "2026-07-01",
 };
 
 const SEED_POLICIES = [
-  { policyNumber: "OM-LIFE-2024-5678", policyType: "LIFE" as const, monthlyPremium: 450.0, premiumDueDate: 25, status: "ACTIVE" as const, nextDueDate: "2026-08-25", coverAmount: 500000.0, riskScore: 0.23 },
-  { policyNumber: "OM-FUN-2024-9012", policyType: "FUNERAL" as const, monthlyPremium: 125.0, premiumDueDate: 28, status: "ACTIVE" as const, nextDueDate: "2026-08-28", coverAmount: 50000.0, riskScore: 0.12 },
+  { policyNumber: "OM-LIFE-2024-5678", policyType: "LIFE" as const, monthlyPremium: 450.0, premiumDueDate: 25, status: "ACTIVE" as const, nextDueDate: "2026-07-25", coverAmount: 500000.0, riskScore: 0.23 },
+  { policyNumber: "OM-FUN-2024-9012", policyType: "FUNERAL" as const, monthlyPremium: 125.0, premiumDueDate: 28, status: "ACTIVE" as const, nextDueDate: "2026-07-28", coverAmount: 50000.0, riskScore: 0.12 },
+  { policyNumber: "OM-SAV-2024-3456", policyType: "SAVINGS" as const, monthlyPremium: 300.0, premiumDueDate: 1, status: "ACTIVE" as const, nextDueDate: "2026-08-01", coverAmount: 150000.0, riskScore: 0.05 },
+  { policyNumber: "OM-DIS-2024-7890", policyType: "DISABILITY" as const, monthlyPremium: 200.0, premiumDueDate: 15, status: "ACTIVE" as const, nextDueDate: "2026-08-15", coverAmount: 250000.0, riskScore: 0.18 },
 ];
 
 const SEED_TRANSACTIONS = [
-  { merchantName: "Pick n Pay - Sandton", merchantCategory: "Grocery", amount: 1245.67, cashbackAmount: 12.46, cashbackApplied: true, transactionDate: "2026-07-06", isParticipatingRetailer: true },
-  { merchantName: "Checkers - Rosebank", merchantCategory: "Grocery", amount: 876.23, cashbackAmount: 8.76, cashbackApplied: true, transactionDate: "2026-07-04", isParticipatingRetailer: true },
-  { merchantName: "Woolworths Food", merchantCategory: "Grocery", amount: 432.10, cashbackAmount: 4.32, cashbackApplied: true, transactionDate: "2026-07-02", isParticipatingRetailer: true },
+  { merchantName: "Pick n Pay - Sandton", merchantCategory: "Grocery", amount: 1245.67, cashbackAmount: 124.57, cashbackApplied: true, transactionDate: "2026-07-06", isParticipatingRetailer: true },
+  { merchantName: "Checkers - Rosebank", merchantCategory: "Grocery", amount: 876.23, cashbackAmount: 25.93, cashbackApplied: true, transactionDate: "2026-07-04", isParticipatingRetailer: true },
+  { merchantName: "Woolworths Food", merchantCategory: "Grocery", amount: 432.10, cashbackAmount: 43.21, cashbackApplied: true, transactionDate: "2026-07-02", isParticipatingRetailer: true },
   { merchantName: "Engen Garage", merchantCategory: "Fuel", amount: 950.00, cashbackAmount: 0, cashbackApplied: false, transactionDate: "2026-07-03", isParticipatingRetailer: false },
-  { merchantName: "Shoprite - Soweto", merchantCategory: "Grocery", amount: 654.89, cashbackAmount: 5.68, cashbackApplied: true, transactionDate: "2026-06-30", isParticipatingRetailer: true },
+  { merchantName: "Shoprite - Soweto", merchantCategory: "Grocery", amount: 654.89, cashbackAmount: 65.49, cashbackApplied: true, transactionDate: "2026-06-30", isParticipatingRetailer: true },
 ];
 
 const SEED_INSIGHTS = [
