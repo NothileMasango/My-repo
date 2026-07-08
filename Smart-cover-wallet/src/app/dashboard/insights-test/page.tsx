@@ -18,40 +18,56 @@ export default function InsightsTestPage() {
   const [phoneNumber, setPhoneNumber] = useState("27825551234");
 
   /**
-   * SIMULATE HIGH RISK: Set policy due dates to tomorrow so auto-cover triggers
+   * SIMULATE HIGH RISK: Set policy due dates to today so auto-cover triggers
    */
   async function simulateHighRisk() {
     setRunning(true);
     setStatus("Setting up HIGH RISK scenario...");
     try {
       const { data: policies } = await client.models.Policy.list();
-      const tomorrow = new Date();
-      tomorrow.setDate(tomorrow.getDate() + 1);
-      const tomorrowStr = tomorrow.toISOString().split("T")[0];
+      // Set to TODAY - guarantees daysUntilDue = 0 which is <= 3
+      const today = new Date().toISOString().split("T")[0];
 
       for (const policy of policies) {
         await client.models.Policy.update({
           id: policy.id,
-          nextDueDate: tomorrowStr,
-          riskScore: 0.85,
+          nextDueDate: today,
+          riskScore: 0.90,
         });
       }
 
-      // Also reduce wallet balance to make it tight
+      // Set wallet balance high enough to cover BOTH policies (R39 + R89 = R128)
       const { data: wallets } = await client.models.Wallet.list();
       if (wallets[0]) {
         await client.models.Wallet.update({
           id: wallets[0].id,
-          balance: 95.00, // Just enough to cover EasiPlus (R39) + Standard (R89) = R128
+          balance: 200.00,
           monthlyEarnings: 45.00,
         });
       }
 
-      setStatus("HIGH RISK scenario ready! Policies due TOMORROW, wallet balance R95.00. Now click 'Run AI Engine' to trigger auto-cover + WhatsApp.");
+      setStatus("✅ HIGH RISK scenario ready! Policies due TODAY, wallet R200. Now click 'Run AI Engine' below.");
     } catch (e: any) {
       setStatus(`Error: ${e.message}`);
     }
     setRunning(false);
+  }
+
+  /**
+   * Send a test WhatsApp message directly (doesn't require AI analysis)
+   */
+  function sendTestWhatsApp() {
+    const msg = encodeURIComponent(
+      `🛡️ *Smart Cover Wallet - Auto-Payment Notice*\n\n` +
+      `Hi! Your *EasiPlus Funeral Plan* premium of *R39.00* is due today.\n\n` +
+      `✅ *Action:* We will use R39.00 from your Smart Cover Wallet (balance: R200.00) to pay this premium and keep your policy active.\n\n` +
+      `New balance after payment: R161.00\n\n` +
+      `Reply STOP within 24hrs to cancel this auto-payment.\n\n` +
+      `_Smart Cover Wallet by OM Bank_\n` +
+      `_Protecting what matters most_ 🍞`
+    );
+    const url = `https://wa.me/${phoneNumber}?text=${msg}`;
+    window.open(url, "_blank");
   }
 
   async function runAIAnalysis() {
@@ -259,18 +275,43 @@ export default function InsightsTestPage() {
             <p className="text-xs text-gray-500 mt-1">Format: country code + number (e.g. 27821234567 for SA)</p>
           </div>
 
+          {/* Direct WhatsApp Test - Always works */}
+          <div className="bg-green-50 rounded-xl p-4 mb-4 border border-green-200">
+            <div className="flex items-center gap-2 mb-2">
+              <svg className="w-5 h-5 text-green-600" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z" />
+              </svg>
+              <p className="font-semibold text-green-800 text-sm">Quick Test: Send WhatsApp Notification Now</p>
+            </div>
+            <p className="text-xs text-green-700 mb-3">
+              Instantly opens WhatsApp with the auto-cover notification message. No need to run the AI engine first.
+            </p>
+            <button
+              onClick={sendTestWhatsApp}
+              className="w-full py-2.5 rounded-lg bg-green-600 text-white text-sm font-medium hover:bg-green-700 flex items-center justify-center gap-2"
+            >
+              <svg className="w-4 h-4" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z" />
+              </svg>
+              Send Test WhatsApp Now
+            </button>
+          </div>
+
+          <hr className="my-4 border-gray-200" />
+          <p className="text-xs text-gray-500 text-center mb-4 font-medium">— OR run full AI analysis below —</p>
+
           {/* Step 1: Simulate High Risk */}
           <div className="bg-red-50 rounded-xl p-4 mb-4 border border-red-200">
             <p className="font-semibold text-red-800 text-sm mb-2">Step 1: Simulate High Risk Scenario</p>
             <p className="text-xs text-red-700 mb-3">
-              Sets all policy due dates to TOMORROW and reduces wallet balance to R95.00 — guaranteeing HIGH risk scores and auto-cover triggers.
+              Sets all policy due dates to TODAY and wallet balance to R200 — guaranteeing HIGH risk + auto-cover + WhatsApp.
             </p>
             <button
               onClick={simulateHighRisk}
               disabled={running}
               className="w-full py-2.5 rounded-lg bg-red-600 text-white text-sm font-medium hover:bg-red-700 disabled:opacity-50"
             >
-              {running ? "Setting up..." : "⚠️ Simulate High Risk (Set Due Tomorrow)"}
+              {running ? "Setting up..." : "⚠️ Simulate High Risk (Set Due TODAY)"}
             </button>
           </div>
 
